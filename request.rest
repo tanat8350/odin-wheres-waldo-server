@@ -1,0 +1,41 @@
+@baseUrl = http://localhost:3000
+
+GET {{baseUrl}}/game HTTP/1.1
+
+### valid
+POST {{baseUrl}}/game
+Content-Type: application/json
+
+{
+  "gameid": "1",
+  "results": ["430,1341","687,1283","418,1499"]
+}
+
+### add max diff
+POST {{baseUrl}}/game/9
+Content-Type: application/json
+
+{
+  "imageid": 1,
+  "results": ["450,1441","737,1383","468,1599"]
+}
+
+###
+PUT {{baseUrl}}/game/9
+Content-Type: application/json
+
+{
+  "player": "testplayer"
+}
+
+### exceed max diff
+POST {{baseUrl}}/game
+Content-Type: application/json
+
+{
+  "gameid": 1,
+  "results": ["452,1442","738,1384","469,1600"]
+}
+
+### score
+GET {{baseUrl}}/score
