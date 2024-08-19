@@ -4,11 +4,13 @@ const { body, validationResult } = require('express-validator');
 
 const MAX_DIFF_X = 50;
 const MAX_DIFF_Y = 100;
+const MAX_DIFF_DURATION = 10;
 
 const validateResult = [
   body('imageid').isInt(),
   body('results').isArray(),
   body('results[*]').isString(),
+  body('duration').isInt(),
 ];
 
 const validatePlayerName = [
@@ -40,7 +42,7 @@ module.exports = {
     res.json({ ...images[random], gameid: game.id });
   }),
 
-  post: [
+  postUpdateFinished: [
     validateResult,
     asyncHandler(async (req, res) => {
       const finishedTime = new Date();
@@ -81,6 +83,40 @@ module.exports = {
             .status(400)
             .json({ errors: [{ msg: 'fail to update game data' }] });
         }
+
+        const comStartFinish = Math.floor(
+          (updated.finish - updated.start) / 1000
+        );
+        if (Math.abs(comStartFinish - req.body.duration) > MAX_DIFF_DURATION) {
+          const deletedInvalidGame = await prisma.game.delete({
+            where: {
+              id: +req.params.id,
+            },
+          });
+          if (!deletedInvalidGame) {
+            return res.status(400).json({
+              errors: [{ msg: 'fail to delete invalid game' }],
+            });
+          }
+          return res.status(400).json({
+            errors: [{ msg: 'Something is wrong with the game' }],
+          });
+        }
+
+        const updatedDuration = await prisma.game.update({
+          where: {
+            id: +req.params.id,
+          },
+          data: {
+            duration: +req.body.duration,
+          },
+        });
+        if (!updatedDuration) {
+          return res
+            .status(400)
+            .json({ errors: [{ msg: 'fail to update duration' }] });
+        }
+
         return res.json({ success: true });
       }
       return res.json({ success: false });

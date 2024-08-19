@@ -24,6 +24,8 @@ model Game {
   id Int @id @default(autoincrement())
   start DateTime @default(now())
   finish DateTime?
+  // in sec
+  duration Int?
   player String? @db.VarChar(255)
   imageid Int
   image Image @relation(fields: [imageid],references: [id])

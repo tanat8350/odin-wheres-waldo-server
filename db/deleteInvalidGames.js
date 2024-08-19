@@ -3,7 +3,7 @@ const prisma = require('../configs/prisma');
 const deleteUnfinished = async () => {
   await prisma.game.deleteMany({
     where: {
-      finish: null,
+      duration: null,
     },
   });
 };
